@@ -24,8 +24,33 @@ def _compute_boundary_random(foci, C, ctl, cbr):
 
     return boundary
 
-def _foci_sum(pnt, foci):
+def foci_f(foci, pnt):
     return sum([dist2(foci[i]-pnt) for i in range(len(foci))])
+
+def foci_f_x(foci, pnt):
+    return sum([(pnt[0]-foci[i][0])/dist2(foci[i]-pnt) for i in range(len(foci)) if dist2(foci[i]-pnt)>=0.0001])
+
+def foci_f_xx(foci, pnt):
+    return sum([(pnt[1]-foci[i][1])**2/dist2(foci[i]-pnt)**3 for i in range(len(foci)) if dist2(foci[i]-pnt)>=0.0001])
+
+def foci_f_y(foci, pnt):
+    return sum([(pnt[1]-foci[i][1])/dist2(foci[i]-pnt) for i in range(len(foci)) if dist2(foci[i]-pnt)>=0.0001])
+
+def foci_f_yy(foci, pnt):
+    return sum([(pnt[0]-foci[i][0])**2/dist2(foci[i]-pnt)**3 for i in range(len(foci)) if dist2(foci[i]-pnt)>=0.0001])
+
+def foci_centroid(foci):
+    pnt = numpy.array((0, 0))
+    while abs(foci_f_y(foci, pnt)) + abs(foci_f_x(foci, pnt)) > 0.001:
+        print(pnt, foci_f(foci, pnt), foci_f_x(foci, pnt), foci_f_y(foci, pnt))
+        if abs(foci_f_y(foci, pnt)) < abs(foci_f_x(foci, pnt)):
+            x = -foci_f_x(foci, pnt)/foci_f_xx(foci, pnt) + pnt[0]
+            y = pnt[1]
+        else:
+            x = pnt[0]
+            y = -foci_f_y(foci, pnt)/foci_f_yy(foci, pnt) + pnt[1]
+        pnt = numpy.array([x, y])
+    return pnt[0], pnt[1]
 
 def _compute_boundary_centered(foci, C, ctl, cbr):
     center = sum(numpy.array(foci))/len(foci)
@@ -37,7 +62,7 @@ def _compute_boundary_centered(foci, C, ctl, cbr):
         outer = center + C*numpy.array([math.cos(theta), math.sin(theta)])
         for i in range(iterations):
             midpoint = (inner+outer)/2.
-            if _foci_sum(midpoint, foci) < C:
+            if foci_f(foci, midpoint) < C:
                 inner = midpoint
             else:
                 outer = midpoint
@@ -46,7 +71,7 @@ def _compute_boundary_centered(foci, C, ctl, cbr):
 
 def compute_boundary(foci, C, ctl, cbr):
     center = sum(numpy.array(foci))/len(foci)
-    if _foci_sum(center, foci) < C:
+    if foci_f(foci, center) < C:
         return _compute_boundary_centered(foci, C, ctl, cbr)
     else:
         return _compute_boundary_random(foci, C, ctl, cbr)

@@ -51,8 +51,6 @@ class EllipseWidget(QtGui.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            print('computing')
-            print(self.foci)
             self.compute_ellipse()
 
     def compute_ellipse(self):
@@ -62,14 +60,17 @@ class EllipseWidget(QtGui.QWidget):
         self.update()
 
     def pos2p(self, pos):
+        center = self.rect().center()
         x, y = pos.x(), pos.y()
         granularity = compute.GRANULARITY
-        return (x/granularity - compute.CANVAS_SIZE/2, y/granularity - compute.CANVAS_SIZE/2)
+        return ((pos.x()-center.x())/granularity, (pos.y()-center.y())/granularity)
 
     def p2pixel(self, pnt):
         granularity = compute.GRANULARITY
-        x = (pnt[0]+compute.CANVAS_SIZE/2, pnt[1]+compute.CANVAS_SIZE/2)
-        return (int(x[0]*granularity), int(x[1]*granularity))
+        center = self.rect().center()
+        granularity = compute.GRANULARITY
+        pix = (pnt[0]*granularity+center.x(), pnt[1]*granularity+center.y())
+        return (int(pix[0]), int(pix[1]))
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
@@ -95,6 +96,11 @@ class EllipseWidget(QtGui.QWidget):
             x, y = self.p2pixel((x, y))
             qp.setPen(QtGui.QPen('maroon'))
             qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
+
+            #x, y = compute.foci_centroid(self.foci)
+            #x, y = self.p2pixel((x, y))
+            #qp.setPen(QtGui.QPen('green'))
+            #qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
         qp.end()
 
 class EllipseStudio(QtGui.QMainWindow):
