@@ -8,8 +8,9 @@ class EllipseWidget(QtGui.QWidget):
         self.circumference = 20
 
         self.dragging = None
-        self.foci = []
+        self.foci = [(-2.5, 0), (2.5, 0)]
         self.boundary = None
+        self.compute_ellipse()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:

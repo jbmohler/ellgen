@@ -62,14 +62,13 @@ def foci_centroid_newton(foci):
 
 def foci_directional_derivative(foci, t, base, dirvec):
     pnt = numpy.array(base)+numpy.array(dirvec)*t
-    return sum([(pnt[0]-foci[i][0]+pnt[1]-foci[i][1])/dist2(foci[i]-pnt) for i in range(len(foci)) if dist2(foci[i]-pnt)>=PROXIMITY])
+    return sum([((pnt[0]-foci[i][0])*dirvec[0]+(pnt[1]-foci[i][1])*dirvec[1])/dist2(foci[i]-pnt) for i in range(len(foci)) if dist2(foci[i]-pnt)>=PROXIMITY])
 
 def foci_centroid(foci, line):
     if len(foci) == 1:
         return foci[0]
     base = sum(numpy.array(foci))/len(foci)
     band = max([dist2(foci[i]-base) for i in range(len(foci))])*2
-    print('**** CENTROID ****')
     dirvec = numpy.array([math.cos(0.), math.sin(0.)]) # arbitrary direction
     basex = base+[1, 1]
     while dist2(basex-base) > PROXIMITY:
@@ -77,16 +76,18 @@ def foci_centroid(foci, line):
         gp = lambda t, foci=foci, base=base, dirvec=dirvec: foci_directional_derivative(foci, t, base, dirvec)
         # find minimum of g for t in [-band, band]
         l1, l2 = -band, band
-        ep1 = base+dirvec*l1
-        ep2 = base+dirvec*l2
-        print('line:  ', ep1, ep2)
-        for ss in range(41):
-            ss = (ss-20)/40. * band
-            p = base+dirvec*ss
-            print('g({:6.2f})={:6.2f};  gp({:6.2f})={:6.2f}'.format(ss, foci_f(foci, p), ss, gp(ss)))
-        line(ep1, ep2)
+
+        ### DIAGNOSTICS ####
+        # ep1 = base+dirvec*l1
+        # ep2 = base+dirvec*l2
+        # print('line:  ', ep1, ep2)
+        # print(base, dirvec)
+        # for ss in range(41):
+        #     ss = (ss-20)/20. * band
+        #     p = base+dirvec*ss
+        #     print('p=({:5.1f}, {:5.1f});  g({:5.1f})={:5.1f};  gp({:5.1f})={:5.1f}'.format(p[0], p[1], ss, foci_f(foci, p), ss, gp(ss)))
+        # line(ep1, ep2)
         while abs(l1-l2) > PROXIMITY**2:
-            print('gp({})={}; gp({})={}'.format(l1, gp(l1), l2, gp(l2)))
             assert gp(l1)*gp(l2) < 0.
             m = (l1+l2)/2.
             if abs(gp(m)) < 0.00001:
@@ -95,19 +96,18 @@ def foci_centroid(foci, line):
                 l1 = m
             else:
                 l2 = m
-        print(m, base)
         base = base+dirvec*m
         dirvec = numpy.array([dirvec[1], -dirvec[0]])
     return base
 
 def _compute_boundary_centered(foci, C, ctl, cbr):
-    center = sum(numpy.array(foci))/len(foci)
+    cent = foci_centroid(foci, lambda:None)
     boundary = []
     iterations = int(math.log(C*2000))
     for _theta in range(400):
         theta = _theta/400.*2*math.pi
-        inner = center
-        outer = center + C*numpy.array([math.cos(theta), math.sin(theta)])
+        inner = cent
+        outer = cent + C*numpy.array([math.cos(theta), math.sin(theta)])
         for i in range(iterations):
             midpoint = (inner+outer)/2.
             if foci_f(foci, midpoint) < C:
@@ -118,8 +118,8 @@ def _compute_boundary_centered(foci, C, ctl, cbr):
     return boundary
 
 def compute_boundary(foci, C, ctl, cbr):
-    center = sum(numpy.array(foci))/len(foci)
-    if foci_f(foci, center) < C:
+    cent = foci_centroid(foci, lambda:None)
+    if foci_f(foci, cent) < C:
         return _compute_boundary_centered(foci, C, ctl, cbr)
     else:
         return _compute_boundary_random(foci, C, ctl, cbr)
