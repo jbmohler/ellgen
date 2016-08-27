@@ -88,7 +88,7 @@ class EllipseWidget(QtGui.QWidget):
                 qp.drawLine(QtCore.QPoint(*p1), QtCore.QPoint(*p2))
             #for f in self.boundary:
             #    qp.drawPoint(*self.p2pixel(f))
-        if len(self.foci) > 0:
+        if len(self.foci) > 0 and True:
             xsum = sum([x for x, _ in self.foci])
             ysum = sum([y for _, y in self.foci])
             x = xsum / len(self.foci)
@@ -96,11 +96,15 @@ class EllipseWidget(QtGui.QWidget):
             x, y = self.p2pixel((x, y))
             qp.setPen(QtGui.QPen('maroon'))
             qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
-
-            #x, y = compute.foci_centroid(self.foci)
-            #x, y = self.p2pixel((x, y))
-            #qp.setPen(QtGui.QPen('green'))
-            #qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
+        if len(self.foci) > 0 and True:
+            def line(ep1, ep2):
+                ep1 = self.p2pixel(ep1)
+                ep2 = self.p2pixel(ep2)
+                qp.drawLine(ep1[0], ep1[1], ep2[0], ep2[1])
+            x, y = compute.foci_centroid(self.foci, line)
+            x, y = self.p2pixel((x, y))
+            qp.setPen(QtGui.QPen('green'))
+            qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
         qp.end()
 
 class EllipseStudio(QtGui.QMainWindow):
