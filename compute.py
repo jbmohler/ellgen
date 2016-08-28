@@ -69,7 +69,7 @@ def foci_centroid(foci, line):
         return foci[0]
     base = sum(numpy.array(foci))/len(foci)
     band = max([dist2(foci[i]-base) for i in range(len(foci))])*2
-    dirvec = numpy.array([math.cos(0.), math.sin(0.)]) # arbitrary direction
+    dirvec = numpy.array([math.cos(1.), math.sin(1.)]) # arbitrary direction
     basex = base+[1, 1]
     while dist2(basex-base) > PROXIMITY:
         basex = base
@@ -100,14 +100,16 @@ def foci_centroid(foci, line):
         dirvec = numpy.array([dirvec[1], -dirvec[0]])
     return base
 
-def _compute_boundary_centered(foci, C, ctl, cbr):
-    cent = foci_centroid(foci, lambda:None)
+def _compute_boundary_centered(foci, C, cent):
     boundary = []
-    iterations = int(math.log(C*2000))
+    r1 = (C - sum([dist2(fc-cent) for fc in foci]))/len(foci)
+    r2 = C - min([dist2(fc-cent) for fc in foci])
+    iterations = int(math.log2((r2-r1)/PROXIMITY**2))
     for _theta in range(400):
         theta = _theta/400.*2*math.pi
-        inner = cent
-        outer = cent + C*numpy.array([math.cos(theta), math.sin(theta)])
+        dirvec = numpy.array([math.cos(theta), math.sin(theta)])
+        inner = cent + r1*dirvec
+        outer = cent + r2*dirvec
         for i in range(iterations):
             midpoint = (inner+outer)/2.
             if foci_f(foci, midpoint) < C:
@@ -120,7 +122,7 @@ def _compute_boundary_centered(foci, C, ctl, cbr):
 def compute_boundary(foci, C, ctl, cbr):
     cent = foci_centroid(foci, lambda:None)
     if foci_f(foci, cent) < C:
-        return _compute_boundary_centered(foci, C, ctl, cbr)
+        return _compute_boundary_centered(foci, C, cent)
     else:
         return _compute_boundary_random(foci, C, ctl, cbr)
 
