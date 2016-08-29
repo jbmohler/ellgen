@@ -87,12 +87,15 @@ def foci_centroid(foci, line):
         #     p = base+dirvec*ss
         #     print('p=({:5.1f}, {:5.1f});  g({:5.1f})={:5.1f};  gp({:5.1f})={:5.1f}'.format(p[0], p[1], ss, foci_f(foci, p), ss, gp(ss)))
         # line(ep1, ep2)
+        gpl1 = gp(l1)
+        gpl2 = gp(l2)
         while abs(l1-l2) > PROXIMITY**2:
-            assert gp(l1)*gp(l2) < 0.
+            assert gpl1*gpl2 < 0.
             m = (l1+l2)/2.
-            if abs(gp(m)) < 0.00001:
+            gpm = gp(m)
+            if abs(gpm) < 0.00001:
                 break
-            if gp(m)*gp(l1) > 0:
+            if gpm*gpl1 > 0:
                 l1 = m
             else:
                 l2 = m
@@ -104,19 +107,36 @@ def _compute_boundary_centered(foci, C, cent):
     boundary = []
     r1 = (C - sum([dist2(fc-cent) for fc in foci]))/len(foci)
     r2 = C - min([dist2(fc-cent) for fc in foci])
-    iterations = int(math.log2((r2-r1)/PROXIMITY**2))
+    rad = None
     for _theta in range(400):
         theta = _theta/400.*2*math.pi
         dirvec = numpy.array([math.cos(theta), math.sin(theta)])
-        inner = cent + r1*dirvec
-        outer = cent + r2*dirvec
-        for i in range(iterations):
-            midpoint = (inner+outer)/2.
-            if foci_f(foci, midpoint) < C:
+        if rad == None:
+            inner = r1
+            outer = r2
+        else:
+            inner = (4*rad+r1)/5.
+            outer = (4*rad+r2)/5.
+        lower = foci_f(foci, cent+inner*dirvec)
+        upper = foci_f(foci, cent+outer*dirvec)
+        while lower > C or upper < C:
+            inner = r1
+            outer = r2
+            lower = foci_f(foci, cent+inner*dirvec)
+            upper = foci_f(foci, cent+outer*dirvec)
+        while outer - inner > PROXIMITY**2:
+            midpoint = ((upper-C)*inner+(C-lower)*outer)/(upper-lower)
+            h = foci_f(foci, cent+midpoint*dirvec)
+            if abs(h-C) < PROXIMITY**3:
+                inner = outer = midpoint
+            elif h < C:
                 inner = midpoint
+                lower = h
             else:
                 outer = midpoint
-        boundary.append(inner)
+                upper = h
+        rad = (inner+outer)/2
+        boundary.append(cent+rad*dirvec)
     return boundary
 
 def compute_boundary(foci, C, ctl, cbr):
