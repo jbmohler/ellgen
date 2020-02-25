@@ -1,6 +1,7 @@
 from PySide import QtCore, QtGui
 import compute
 
+
 class EllipseWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(EllipseWidget, self).__init__(parent)
@@ -16,7 +17,7 @@ class EllipseWidget(QtGui.QWidget):
         if event.button() == QtCore.Qt.LeftButton:
             coords = self.pos2p(event.pos())
             for index, p in enumerate(self.foci):
-                if compute.dist2((p[0]-coords[0], p[1]-coords[1])) < 0.3:
+                if compute.dist2((p[0] - coords[0], p[1] - coords[1])) < 0.3:
                     self.dragging = index
                     self.update()
                     return True
@@ -43,7 +44,7 @@ class EllipseWidget(QtGui.QWidget):
         if event.button() == QtCore.Qt.RightButton:
             coords = self.pos2p(event.pos())
             for index, p in enumerate(self.foci):
-                if compute.dist2((p[0]-coords[0], p[1]-coords[1])) < 0.3:
+                if compute.dist2((p[0] - coords[0], p[1] - coords[1])) < 0.3:
                     del self.foci[index]
                     self.update()
                     self.compute_ellipse()
@@ -57,20 +58,25 @@ class EllipseWidget(QtGui.QWidget):
     def compute_ellipse(self):
         cs1 = self.pos2p(self.rect().topLeft())
         cs2 = self.pos2p(self.rect().bottomRight())
-        self.boundary = compute.compute_boundary(self.foci, self.circumference, cs1, cs2)
+        self.boundary = compute.compute_boundary(
+            self.foci, self.circumference, cs1, cs2
+        )
         self.update()
 
     def pos2p(self, pos):
         center = self.rect().center()
         x, y = pos.x(), pos.y()
         granularity = compute.GRANULARITY
-        return ((pos.x()-center.x())/granularity, (pos.y()-center.y())/granularity)
+        return (
+            (pos.x() - center.x()) / granularity,
+            (pos.y() - center.y()) / granularity,
+        )
 
     def p2pixel(self, pnt):
         granularity = compute.GRANULARITY
         center = self.rect().center()
         granularity = compute.GRANULARITY
-        pix = (pnt[0]*granularity+center.x(), pnt[1]*granularity+center.y())
+        pix = (pnt[0] * granularity + center.x(), pnt[1] * granularity + center.y())
         return (int(pix[0]), int(pix[1]))
 
     def paintEvent(self, event):
@@ -79,15 +85,15 @@ class EllipseWidget(QtGui.QWidget):
         radius = 3
         for f in self.foci:
             x, y = self.p2pixel(f)
-            qp.setBrush(QtGui.QBrush('blue'))
-            qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
+            qp.setBrush(QtGui.QBrush("blue"))
+            qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
         if self.boundary != None:
-            qp.setPen(QtGui.QPen('blue'))
+            qp.setPen(QtGui.QPen("blue"))
             for index in range(len(self.boundary)):
-                p1 = self.p2pixel(self.boundary[index-1])
+                p1 = self.p2pixel(self.boundary[index - 1])
                 p2 = self.p2pixel(self.boundary[index])
                 qp.drawLine(QtCore.QPoint(*p1), QtCore.QPoint(*p2))
-            #for f in self.boundary:
+            # for f in self.boundary:
             #    qp.drawPoint(*self.p2pixel(f))
         if len(self.foci) > 0 and True:
             xsum = sum([x for x, _ in self.foci])
@@ -95,18 +101,21 @@ class EllipseWidget(QtGui.QWidget):
             x = xsum / len(self.foci)
             y = ysum / len(self.foci)
             x, y = self.p2pixel((x, y))
-            qp.setPen(QtGui.QPen('maroon'))
-            qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
+            qp.setPen(QtGui.QPen("maroon"))
+            qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
         if len(self.foci) > 0 and True:
+
             def line(ep1, ep2):
                 ep1 = self.p2pixel(ep1)
                 ep2 = self.p2pixel(ep2)
                 qp.drawLine(ep1[0], ep1[1], ep2[0], ep2[1])
+
             x, y = compute.foci_centroid(self.foci, line)
             x, y = self.p2pixel((x, y))
-            qp.setPen(QtGui.QPen('green'))
-            qp.drawEllipse(x-radius, y-radius, 2*radius, 2*radius)
+            qp.setPen(QtGui.QPen("green"))
+            qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
         qp.end()
+
 
 class EllipseStudio(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -129,7 +138,8 @@ class EllipseStudio(QtGui.QMainWindow):
         self.ell_wid.circumference = int(self.circ_edit.text())
         self.ell_wid.compute_ellipse()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = QtGui.QApplication([])
     w = EllipseStudio()
     w.resize(600, 500)
