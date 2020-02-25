@@ -1,8 +1,8 @@
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui, QtWidgets
 import compute
 
 
-class EllipseWidget(QtGui.QWidget):
+class EllipseWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(EllipseWidget, self).__init__(parent)
 
@@ -117,13 +117,13 @@ class EllipseWidget(QtGui.QWidget):
         qp.end()
 
 
-class EllipseStudio(QtGui.QMainWindow):
+class EllipseStudio(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(EllipseStudio, self).__init__(parent)
 
-        self.wid = QtGui.QWidget()
-        self.layout = QtGui.QVBoxLayout(self.wid)
-        self.circ_edit = QtGui.QLineEdit()
+        self.wid = QtWidgets.QWidget()
+        self.layout = QtWidgets.QVBoxLayout(self.wid)
+        self.circ_edit = QtWidgets.QLineEdit()
         self.ell_wid = EllipseWidget()
         self.layout.addWidget(self.circ_edit)
         self.layout.addWidget(self.ell_wid)
@@ -140,7 +140,7 @@ class EllipseStudio(QtGui.QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     w = EllipseStudio()
     w.resize(600, 500)
     w.show()
