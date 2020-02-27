@@ -8,6 +8,9 @@ class EllipseWidget(QtWidgets.QWidget):
 
         self.circumference = 20
 
+        self.reset()
+
+    def reset(self):
         self.dragging = None
         self.foci = [(-2.5, 0), (2.5, 0)]
         self.boundary = None
@@ -118,15 +121,35 @@ class EllipseWidget(QtWidgets.QWidget):
 
 
 class EllipseStudio(QtWidgets.QMainWindow):
+    MANUAL = """\
+Left click -- place new foci
+Right click -- remove foci
+Left drag -- move foci"""
+
     def __init__(self, parent=None):
         super(EllipseStudio, self).__init__(parent)
 
         self.wid = QtWidgets.QWidget()
         self.layout = QtWidgets.QVBoxLayout(self.wid)
+
+        self.label = QtWidgets.QLabel(self.MANUAL)
         self.circ_edit = QtWidgets.QLineEdit()
         self.ell_wid = EllipseWidget()
-        self.layout.addWidget(self.circ_edit)
-        self.layout.addWidget(self.ell_wid)
+        self.buttons = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
+        reset = self.buttons.addButton('Reset', self.buttons.ActionRole)
+        reset.clicked.connect(lambda: self.ell_wid.reset())
+
+        self.header = QtWidgets.QHBoxLayout()
+        s1 = QtWidgets.QVBoxLayout()
+
+        s1.addWidget(self.label)
+        s1.addWidget(self.circ_edit)
+
+        self.header.addLayout(s1)
+        self.header.addWidget(self.buttons)
+
+        self.layout.addLayout(self.header)
+        self.layout.addWidget(self.ell_wid, 30)
 
         self.setCentralWidget(self.wid)
 
