@@ -3,10 +3,13 @@ import compute
 
 
 class EllipseWidget(QtWidgets.QWidget):
+    update_position = QtCore.Signal(object)
+
     def __init__(self, parent=None):
         super(EllipseWidget, self).__init__(parent)
 
         self.circumference = 20
+        self.setMouseTracking(True)
 
         self.reset()
 
@@ -27,8 +30,10 @@ class EllipseWidget(QtWidgets.QWidget):
         return super(EllipseWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        location = self.pos2p(event.pos())
+        self.update_position.emit(location)
         if self.dragging != None:
-            new_foci = self.pos2p(event.pos())
+            new_foci = location
             self.foci[self.dragging] = new_foci
             self.update()
             self.compute_ellipse()
@@ -134,10 +139,13 @@ Left drag -- move foci"""
 
         self.label = QtWidgets.QLabel(self.MANUAL)
         self.circ_edit = QtWidgets.QLineEdit()
-        self.ell_wid = EllipseWidget()
         self.buttons = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         reset = self.buttons.addButton("Reset", self.buttons.ActionRole)
         reset.clicked.connect(lambda: self.ell_wid.reset())
+
+        self.ell_wid = EllipseWidget()
+        self.pos_label = QtWidgets.QLabel("location")
+        self.ell_wid.update_position.connect(self.show_location)
 
         self.header = QtWidgets.QHBoxLayout()
         s1 = QtWidgets.QVBoxLayout()
@@ -150,6 +158,7 @@ Left drag -- move foci"""
 
         self.layout.addLayout(self.header)
         self.layout.addWidget(self.ell_wid, 30)
+        self.layout.addWidget(self.pos_label)
 
         self.setCentralWidget(self.wid)
 
@@ -160,6 +169,9 @@ Left drag -- move foci"""
     def recirc(self):
         self.ell_wid.circumference = float(self.circ_edit.text())
         self.ell_wid.compute_ellipse()
+
+    def show_location(self, location):
+        self.pos_label.setText("Location:  {}".format(location))
 
 
 if __name__ == "__main__":
