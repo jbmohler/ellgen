@@ -158,7 +158,7 @@ Left drag -- move foci"""
         self.circ_edit.editingFinished.connect(self.recirc)
 
     def recirc(self):
-        self.ell_wid.circumference = int(self.circ_edit.text())
+        self.ell_wid.circumference = float(self.circ_edit.text())
         self.ell_wid.compute_ellipse()
 
 

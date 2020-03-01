@@ -23,7 +23,7 @@ def _compute_boundary_random(foci, C, ctl, cbr):
     boundary = scatter[numpy.logical_and(distances < C + 0.1, distances > C - 0.1)]
     # print(scatter[])
 
-    return boundary
+    return list(boundary)
 
 
 def foci_f(foci, pnt):
@@ -107,7 +107,7 @@ def foci_directional_derivative(foci, t, base, dirvec):
 
 def foci_centroid(foci, line):
     if len(foci) == 1:
-        return foci[0]
+        return numpy.array(foci[0])
     base = sum(numpy.array(foci)) / len(foci)
     band = max([dist2(foci[i] - base) for i in range(len(foci))]) * 2
     dirvec = numpy.array([math.cos(1.0), math.sin(1.0)])  # arbitrary direction
