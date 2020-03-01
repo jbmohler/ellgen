@@ -136,7 +136,7 @@ Left drag -- move foci"""
         self.circ_edit = QtWidgets.QLineEdit()
         self.ell_wid = EllipseWidget()
         self.buttons = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
-        reset = self.buttons.addButton('Reset', self.buttons.ActionRole)
+        reset = self.buttons.addButton("Reset", self.buttons.ActionRole)
         reset.clicked.connect(lambda: self.ell_wid.reset())
 
         self.header = QtWidgets.QHBoxLayout()
