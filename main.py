@@ -1,9 +1,11 @@
+import math
 from PySide2 import QtCore, QtGui, QtWidgets
 import compute
 
 
 class EllipseWidget(QtWidgets.QWidget):
     update_position = QtCore.Signal(object)
+    update_settings = QtCore.Signal()
 
     def __init__(self, parent=None):
         super(EllipseWidget, self).__init__(parent)
@@ -16,6 +18,19 @@ class EllipseWidget(QtWidgets.QWidget):
     def reset(self):
         self.dragging = None
         self.foci = [(-2.5, 0), (2.5, 0)]
+        self.boundary = None
+        self.compute_ellipse()
+
+    def regular(self, nvertices):
+        self.dragging = None
+        x = 2 * math.pi / nvertices
+        self.foci = [
+            (3 * math.cos(x * i), 3 * math.sin(x * i)) for i in range(nvertices)
+        ]
+
+        self.circumference = nvertices * 4
+        self.update_settings.emit()
+
         self.boundary = None
         self.compute_ellipse()
 
@@ -137,15 +152,35 @@ Left drag -- move foci"""
         self.wid = QtWidgets.QWidget()
         self.layout = QtWidgets.QVBoxLayout(self.wid)
 
+        self.mbar = self.menuBar()
+        filemenu = self.mbar.addMenu("&File")
+        filemenu.addAction("&Reset").triggered.connect(lambda: self.ell_wid.reset())
+        filemenu.addAction("&Close").triggered.connect(lambda: self.close())
+
+        ellipsemenu = self.mbar.addMenu("&Ellipse")
+        ellipsemenu.addAction("Regular: &1 Foci").triggered.connect(
+            lambda: self.ell_wid.regular(1)
+        )
+        ellipsemenu.addAction("Regular: &2 Foci").triggered.connect(
+            lambda: self.ell_wid.regular(2)
+        )
+        ellipsemenu.addAction("Regular: &3 Foci").triggered.connect(
+            lambda: self.ell_wid.regular(3)
+        )
+        ellipsemenu.addAction("Regular: &4 Foci").triggered.connect(
+            lambda: self.ell_wid.regular(4)
+        )
+        ellipsemenu.addAction("Regular: &5 Foci").triggered.connect(
+            lambda: self.ell_wid.regular(5)
+        )
+
         self.label = QtWidgets.QLabel(self.MANUAL)
         self.circ_edit = QtWidgets.QLineEdit()
-        self.buttons = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
-        reset = self.buttons.addButton("Reset", self.buttons.ActionRole)
-        reset.clicked.connect(lambda: self.ell_wid.reset())
 
         self.ell_wid = EllipseWidget()
         self.pos_label = QtWidgets.QLabel("location")
         self.ell_wid.update_position.connect(self.show_location)
+        self.ell_wid.update_settings.connect(self.upsettings)
 
         self.header = QtWidgets.QHBoxLayout()
         s1 = QtWidgets.QVBoxLayout()
@@ -154,7 +189,6 @@ Left drag -- move foci"""
         s1.addWidget(self.circ_edit)
 
         self.header.addLayout(s1)
-        self.header.addWidget(self.buttons)
 
         self.layout.addLayout(self.header)
         self.layout.addWidget(self.ell_wid, 30)
@@ -165,6 +199,9 @@ Left drag -- move foci"""
         self.circ_edit.setText(str(self.ell_wid.circumference))
 
         self.circ_edit.editingFinished.connect(self.recirc)
+
+    def upsettings(self):
+        self.circ_edit.setText(str(self.ell_wid.circumference))
 
     def recirc(self):
         self.ell_wid.circumference = float(self.circ_edit.text())
