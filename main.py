@@ -81,9 +81,12 @@ class EllipseWidget(QtWidgets.QWidget):
     def compute_ellipse(self):
         cs1 = self.pos2p(self.rect().topLeft())
         cs2 = self.pos2p(self.rect().bottomRight())
+        extras = {}
         self.boundary = compute.compute_boundary(
-            self.foci, self.circumference, cs1, cs2
+            self.foci, self.circumference, cs1, cs2, extras
         )
+        print(extras)
+        self.extras = extras
         self.update()
 
     def pos2p(self, pos):
@@ -103,6 +106,12 @@ class EllipseWidget(QtWidgets.QWidget):
         return (int(pix[0]), int(pix[1]))
 
     def paintEvent(self, event):
+        def line(ep1, ep2):
+            nonlocal qp
+            ep1 = self.p2pixel(ep1)
+            ep2 = self.p2pixel(ep2)
+            qp.drawLine(ep1[0], ep1[1], ep2[0], ep2[1])
+
         qp = QtGui.QPainter()
         qp.begin(self)
         radius = 3
@@ -111,6 +120,7 @@ class EllipseWidget(QtWidgets.QWidget):
             qp.setBrush(QtGui.QBrush("blue"))
             qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
         if self.boundary != None:
+            # draw the ellipse
             qp.setPen(QtGui.QPen("blue"))
             for index in range(len(self.boundary)):
                 p1 = self.p2pixel(self.boundary[index - 1])
@@ -118,6 +128,17 @@ class EllipseWidget(QtWidgets.QWidget):
                 qp.drawLine(QtCore.QPoint(*p1), QtCore.QPoint(*p2))
             # for f in self.boundary:
             #    qp.drawPoint(*self.p2pixel(f))
+
+            x, y = compute.foci_centroid(self.foci, line)
+            x, y = self.p2pixel((x, y))
+            if "inner_radius" in self.extras:
+                prads = compute.GRANULARITY * self.extras["inner_radius"]
+                # draw the inner radius
+                qp.drawArc(x - prads, y - prads, 2 * prads, 2 * prads, 0, 5760)
+            if "outer_radius" in self.extras:
+                prads = compute.GRANULARITY * self.extras["outer_radius"]
+                # draw the outer radius
+                qp.drawArc(x - prads, y - prads, 2 * prads, 2 * prads, 0, 5760)
         if len(self.foci) > 0 and True:
             xsum = sum([x for x, _ in self.foci])
             ysum = sum([y for _, y in self.foci])
@@ -127,16 +148,11 @@ class EllipseWidget(QtWidgets.QWidget):
             qp.setPen(QtGui.QPen("maroon"))
             qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
         if len(self.foci) > 0 and True:
-
-            def line(ep1, ep2):
-                ep1 = self.p2pixel(ep1)
-                ep2 = self.p2pixel(ep2)
-                qp.drawLine(ep1[0], ep1[1], ep2[0], ep2[1])
-
             x, y = compute.foci_centroid(self.foci, line)
             x, y = self.p2pixel((x, y))
             qp.setPen(QtGui.QPen("green"))
             qp.drawEllipse(x - radius, y - radius, 2 * radius, 2 * radius)
+
         qp.end()
 
 
