@@ -1,5 +1,5 @@
 import math
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import compute
 
 
@@ -36,7 +36,7 @@ class EllipseWidget(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            coords = self.pos2p(event.pos())
+            coords = self.pos2p(event.position())
             for index, p in enumerate(self.foci):
                 if compute.dist2((p[0] - coords[0], p[1] - coords[1])) < 0.3:
                     self.dragging = index
@@ -45,7 +45,7 @@ class EllipseWidget(QtWidgets.QWidget):
         return super(EllipseWidget, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        location = self.pos2p(event.pos())
+        location = self.pos2p(event.position())
         self.update_position.emit(location)
         if self.dragging != None:
             new_foci = location
@@ -56,7 +56,7 @@ class EllipseWidget(QtWidgets.QWidget):
 
     def mouseReleaseEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            new_foci = self.pos2p(event.pos())
+            new_foci = self.pos2p(event.position())
             if self.dragging != None:
                 self.foci[self.dragging] = new_foci
                 self.dragging = None
@@ -65,7 +65,7 @@ class EllipseWidget(QtWidgets.QWidget):
             self.update()
             self.compute_ellipse()
         if event.button() == QtCore.Qt.RightButton:
-            coords = self.pos2p(event.pos())
+            coords = self.pos2p(event.position())
             for index, p in enumerate(self.foci):
                 if compute.dist2((p[0] - coords[0], p[1] - coords[1])) < 0.3:
                     del self.foci[index]
@@ -232,4 +232,4 @@ if __name__ == "__main__":
     w = EllipseStudio()
     w.resize(600, 500)
     w.show()
-    app.exec_()
+    app.exec()
