@@ -1,2 +1,5 @@
 PySide6
 numpy
+sanic
+black
+flake8
