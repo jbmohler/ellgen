@@ -1,6 +1,6 @@
 function EllipseModel() {
   this.foci = [];
-  this.boundary = null;
+  this.boundaries = null;
 
   this.appendFoci = function (x, y) {
     this.foci.push({ x, y });
@@ -44,9 +44,8 @@ function get_ellipse_boundary(model) {
 
   fetch(request)
     .then((response) => response.json())
-    .then((boundary) => {
-      model.boundary = boundary;
-      console.log(boundary);
+    .then((boundaries) => {
+      model.boundaries = boundaries;
       redraw_canvas(model);
     });
 }
@@ -63,15 +62,18 @@ function redraw_canvas(model) {
     ctx.fill();
   }
 
-  if (model.boundary && model.boundary.length >= 1) {
-    ctx.beginPath();
-    let bp = model.boundary[0];
-    ctx.moveTo(bp.x, bp.y);
-    for (bp of model.boundary.slice(1)) {
-      ctx.lineTo(bp.x, bp.y);
+  if (model.boundaries && model.boundaries.length >= 1) {
+    for (const boundary of model.boundaries) {
+      ctx.beginPath();
+      let bp = boundary.points[0];
+      ctx.moveTo(bp.x, bp.y);
+      for (bp of boundary.points.slice(1)) {
+        ctx.lineTo(bp.x, bp.y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = boundary.color;
+      ctx.stroke();
     }
-    ctx.closePath();
-    ctx.stroke();
   }
 }
 
