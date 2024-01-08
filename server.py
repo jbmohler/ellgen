@@ -11,9 +11,6 @@ app.static("/index.html", "./index.html", name="get_index_html")
 def post_api_compute(request):
     foci = [(f["x"], f["y"]) for f in request.json]
 
-    if len(foci) == 1:
-        return sanic.response.json([])
-
     maxes = (
         max(f[0] for f in foci),
         max(f[1] for f in foci),

@@ -147,6 +147,23 @@ def foci_centroid(foci, line):
     return base
 
 
+def _compute_boundary_single(foci, C, cent, extras=None):
+    # cent is the single foci
+    boundary = []
+    rad = C
+    for _theta in range(400):
+        theta = _theta / 400.0 * 2 * math.pi
+        dirvec = numpy.array([math.cos(theta), math.sin(theta)])
+        boundary.append(cent + rad * dirvec)
+
+    if extras is not None:
+        extras["inner_radius"] = C
+    if extras is not None:
+        extras["outer_radius"] = C
+
+    return boundary
+
+
 def _compute_boundary_centered(foci, C, cent, extras=None):
     boundary = []
     r1 = (C - sum([dist2(fc - cent) for fc in foci])) / len(foci)
@@ -197,7 +214,9 @@ def _compute_boundary_centered(foci, C, cent, extras=None):
 
 def compute_boundary(foci, C, ctl, cbr, extras=None):
     cent = foci_centroid(foci, lambda: None)
-    if foci_f(foci, cent) < C:
+    if len(foci) == 1:
+        return _compute_boundary_single(foci, C, cent, extras=extras)
+    elif foci_f(foci, cent) < C:
         return _compute_boundary_centered(foci, C, cent, extras=extras)
     else:
         return _compute_boundary_random(foci, C, ctl, cbr)
