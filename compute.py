@@ -132,7 +132,7 @@ def foci_centroid(foci, line):
         # line(ep1, ep2)
         gpl1 = gp(l1)
         gpl2 = gp(l2)
-        while abs(l1 - l2) > PROXIMITY ** 2:
+        while abs(l1 - l2) > PROXIMITY**2:
             assert gpl1 * gpl2 < 0.0
             m = (l1 + l2) / 2.0
             gpm = gp(m)
@@ -169,10 +169,10 @@ def _compute_boundary_centered(foci, C, cent, extras=None):
             outer = r2
             lower = foci_f(foci, cent + inner * dirvec)
             upper = foci_f(foci, cent + outer * dirvec)
-        while outer - inner > PROXIMITY ** 2:
+        while outer - inner > PROXIMITY**2:
             midpoint = ((upper - C) * inner + (C - lower) * outer) / (upper - lower)
             h = foci_f(foci, cent + midpoint * dirvec)
-            if abs(h - C) < PROXIMITY ** 3:
+            if abs(h - C) < PROXIMITY**3:
                 inner = outer = midpoint
             elif h < C:
                 inner = midpoint
