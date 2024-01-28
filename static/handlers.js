@@ -50,6 +50,23 @@ function get_ellipse_boundary(model) {
     });
 }
 
+function draw_puddle_lines(model) {
+  const request = new Request("/api/compute", {
+    method: "POST",
+    body: JSON.stringify(model.foci),
+  });
+
+	await new Promise(r => setTimeout(r, 2000));
+
+
+  fetch(request)
+    .then((response) => response.json())
+    .then((boundaries) => {
+      model.boundaries = boundaries;
+      redraw_canvas(model);
+    });
+}
+
 function redraw_canvas(model) {
   ctx = viewport.getContext("2d");
 
@@ -84,5 +101,6 @@ function click_canvas(event) {
   model.appendFoci(x, y);
 
   redraw_canvas(model);
-  get_ellipse_boundary(model);
+  // get_ellipse_boundary(model);
+  draw_puddle_lines(model);
 }
