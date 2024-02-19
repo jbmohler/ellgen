@@ -1,0 +1,59 @@
+[
+	{
+		"foci": [
+			[300, 300],
+			[700, 300],
+			[300, 700],
+			[700, 700]
+		],
+		"draw_foci":{ "color": "red" },
+		"draw_mrep": {"color": "green"},
+		"layers": [
+			{"factor": 1.58, "color": "#73c2fb"}
+		]
+	},
+	{
+		"foci": [
+			[700, 300],
+			[300, 700],
+			[700, 700]
+		],
+		"draw_mrep": {"color": "magenta"},
+		"layers": [
+			{"factor": 1.4, "color": "#437c17"}
+		]
+	},
+	{
+		"foci": [
+			[300, 300],
+			[300, 700],
+			[700, 700]
+		],
+		"draw_mrep": {"color": "magenta"},
+		"layers": [
+			{"factor": 1.4, "color": "#99c68e"}
+		]
+	},
+	{
+		"foci": [
+			[300, 300],
+			[700, 300],
+			[700, 700]
+		],
+		"draw_mrep": {"color": "magenta"},
+		"layers": [
+			{"factor": 1.4, "color": "#9dc209"}
+		]
+	},
+	{
+		"foci": [
+			[300, 300],
+			[700, 300],
+			[300, 700]
+		],
+		"draw_mrep": {"color": "magenta"},
+		"layers": [
+			{"factor": 1.4, "color": "#9cb071"}
+		]
+	}
+]
